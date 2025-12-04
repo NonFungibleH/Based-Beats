@@ -25,8 +25,8 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
   const recordedChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<number | null>(null);
 
+  // DON'T create AudioContext on mount - wait for user interaction
   useEffect(() => {
-    audioContextRef.current = createAudioContext();
     return () => {
       if (audioContextRef.current) {
         audioContextRef.current.close();
@@ -35,39 +35,46 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
   }, []);
 
   const enableAudio = async () => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = createAudioContext();
-    }
-
     try {
-      // Resume the audio context
-      await audioContextRef.current.resume();
-      console.log('✅ Audio enabled, state:', audioContextRef.current.state);
+      // Create AudioContext NOW, during user interaction
+      console.log('🎵 Creating AudioContext during user tap...');
+      audioContextRef.current = createAudioContext();
       
-      // Play a test tone to verify
+      console.log('📊 Initial state:', audioContextRef.current.state);
+      
+      // Resume if suspended
+      if (audioContextRef.current.state === 'suspended') {
+        console.log('⏸️ Resuming...');
+        await audioContextRef.current.resume();
+      }
+      
+      console.log('📊 Final state:', audioContextRef.current.state);
+      
+      // Play test beep to confirm
       const osc = audioContextRef.current.createOscillator();
       const gain = audioContextRef.current.createGain();
       osc.connect(gain);
       gain.connect(audioContextRef.current.destination);
-      gain.gain.value = 0.1;
+      gain.gain.value = 0.2;
       osc.frequency.value = 440;
       osc.start();
       osc.stop(audioContextRef.current.currentTime + 0.1);
       
+      console.log('✅ Audio enabled!');
       setShowAudioPrompt(false);
     } catch (error) {
       console.error('❌ Failed to enable audio:', error);
-      alert('Failed to enable audio. Please check permissions.');
+      alert('Failed to enable audio: ' + error);
     }
   };
 
   const handlePadTrigger = async (padIndex: number) => {
-    if (!audioContextRef.current) return;
-
-    // Double-check audio is resumed
-    if (audioContextRef.current.state === 'suspended') {
-      await audioContextRef.current.resume();
+    if (!audioContextRef.current) {
+      console.warn('⚠️ Audio not enabled yet');
+      return;
     }
+
+    console.log('🎹 Pad triggered:', padIndex);
 
     const pad = drumKits[selectedKit].pads[padIndex];
     setActivePads(prev => ({ ...prev, [padIndex]: true }));
@@ -80,8 +87,9 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
     // Play the sample
     try {
       playSound(audioContextRef.current, pad.frequency, pad.type);
+      console.log('🔊 Sound played');
     } catch (error) {
-      console.error('Error playing sound:', error);
+      console.error('❌ Sound play error:', error);
     }
 
     setTimeout(() => {
@@ -96,7 +104,8 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
   const startRecording = async () => {
     try {
       if (!audioContextRef.current) {
-        audioContextRef.current = createAudioContext();
+        alert('Please enable audio first!');
+        return;
       }
 
       const dest = audioContextRef.current.createMediaStreamDestination();
