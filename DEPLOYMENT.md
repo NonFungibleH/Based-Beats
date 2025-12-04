@@ -1,4 +1,4 @@
-# 🚀 BASED BEATS - Deployment Guide
+# 🚀 BEATPAD - Deployment Guide
 
 ## Quick Deploy to Vercel (Recommended)
 
@@ -8,8 +8,8 @@
 ```bash
 git init
 git add .
-git commit -m "Initial commit - Based Beats v1"
-git remote add origin https://github.com/yourusername/based-beats.git
+git commit -m "Initial commit - BeatPad v1"
+git remote add origin https://github.com/yourusername/beatpad.git
 git push -u origin main
 ```
 
