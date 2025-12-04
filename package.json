@@ -10,11 +10,12 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.30.0",
+    "@farcaster/frame-sdk": "^0.0.25",
+    "@tanstack/react-query": "^5.28.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "viem": "2.x",
-    "wagmi": "2.x",
-    "@tanstack/react-query": "^5.28.4"
+    "wagmi": "2.x"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
