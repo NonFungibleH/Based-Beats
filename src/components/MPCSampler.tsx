@@ -10,9 +10,7 @@ export default function MPCSampler() {
   const lastTriggerTime = useRef<Map<number, number>>(new Map());
 
   useEffect(() => {
-    return () => {
-      // Cleanup on unmount
-    };
+    return () => {};
   }, []);
 
   const enableAudio = async () => {
@@ -25,12 +23,11 @@ export default function MPCSampler() {
   };
 
   const handlePadTrigger = (padIndex: number) => {
-    // Debounce - prevent double triggers within 100ms
     const now = Date.now();
     const lastTime = lastTriggerTime.current.get(padIndex) || 0;
     
-    if (now - lastTime < 100) {
-      return; // Too soon, ignore
+    if (now - lastTime < 50) {
+      return;
     }
     
     lastTriggerTime.current.set(padIndex, now);
@@ -46,7 +43,6 @@ export default function MPCSampler() {
       navigator.vibrate(10);
     }
 
-    // Play sound
     audioEngine.playSound(pad.sample);
 
     setTimeout(() => {
