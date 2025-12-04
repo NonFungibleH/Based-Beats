@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
+import sdk from '@farcaster/frame-sdk';
 import MPCSampler from './components/MPCSampler';
 import Feed from './components/Feed';
 import './App.css';
@@ -20,6 +21,50 @@ type Tab = 'create' | 'feed';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('create');
+  const [isSDKReady, setIsSDKReady] = useState(false);
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        // Get context FIRST (this initializes the SDK)
+        const ctx = await sdk.context;
+        console.log('✅ SDK context loaded:', ctx);
+        
+        // THEN call ready
+        sdk.actions.ready();
+        console.log('✅ Ready called');
+        
+        setIsSDKReady(true);
+      } catch (error) {
+        console.error('❌ SDK init error:', error);
+        // Still call ready even on error
+        sdk.actions.ready();
+        setIsSDKReady(true);
+      }
+    };
+
+    init();
+  }, []);
+
+  if (!isSDKReady) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        height: '100vh',
+        background: '#0a0a0a',
+        color: '#fbbf24',
+        fontSize: '20px',
+        fontFamily: 'monospace'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '20px' }}>🔥</div>
+          <div>Loading BeatPad...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <WagmiProvider config={config}>
