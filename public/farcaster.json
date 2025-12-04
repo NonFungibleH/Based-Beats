@@ -1,0 +1,33 @@
+{
+  "accountAssociation": {
+    "header": "YOUR_HEADER_HERE",
+    "payload": "YOUR_PAYLOAD_HERE",
+    "signature": "YOUR_SIGNATURE_HERE"
+  },
+  "baseBuilder": {
+    "ownerAddress": "0xYOUR_WALLET_ADDRESS_HERE"
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Based Beats",
+    "homeUrl": "https://based-beats.vercel.app",
+    "iconUrl": "https://based-beats.vercel.app/icon.png",
+    "splashImageUrl": "https://based-beats.vercel.app/splash.png",
+    "splashBackgroundColor": "#0a0a0a",
+    "subtitle": "Make beats onchain",
+    "description": "Create beats with MPC sampler",
+    "screenshotUrls": [
+      "https://based-beats.vercel.app/screenshot1.png",
+      "https://based-beats.vercel.app/screenshot2.png",
+      "https://based-beats.vercel.app/screenshot3.png"
+    ],
+    "primaryCategory": "entertainment",
+    "tags": ["music", "creator-tools", "entertainment"],
+    "heroImageUrl": "https://based-beats.vercel.app/hero.png",
+    "tagline": "Stay based",
+    "ogTitle": "Based Beats - Make Beats Onchain",
+    "ogDescription": "Classic MPC sampler for Base. Create, record, and share beats.",
+    "ogImageUrl": "https://based-beats.vercel.app/og.png",
+    "noindex": false
+  }
+}
