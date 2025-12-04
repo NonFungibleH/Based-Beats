@@ -6,7 +6,7 @@
   flex-direction: column;
 }
 
-.app-header {
+.app-header { 
   padding: 20px;
   text-align: center;
   background: rgba(0, 0, 0, 0.5);
