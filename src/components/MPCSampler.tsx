@@ -197,9 +197,42 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // 👇 ADD THIS NEW FUNCTION HERE
+  const testSimpleAudio = () => {
+    console.log('🧪 Testing simple audio...');
+    
+    // Try HTML5 Audio first
+    const audio = new Audio();
+    audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+    
+    audio.play()
+      .then(() => console.log('✅ HTML5 Audio works!'))
+      .catch(err => console.error('❌ HTML5 Audio failed:', err));
+    
+    // Try Web Audio API
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      console.log('📊 AudioContext state:', ctx.state);
+      
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.value = 0.3;
+      osc.frequency.value = 440;
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+      
+      console.log('✅ Web Audio API works!');
+    } catch (err) {
+      console.error('❌ Web Audio API failed:', err);
+    }
+  };
+
   const currentKit = drumKits[selectedKit];
 
   return (
+    <div className="mpc-container">
     <div className="mpc-container">
       {/* Audio Prompt Banner */}
       {showAudioPrompt && (
