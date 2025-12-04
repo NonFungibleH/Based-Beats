@@ -26,19 +26,35 @@ function App() {
   useEffect(() => {
     const init = async () => {
       try {
-        // Get context FIRST (this initializes the SDK)
-        const ctx = await sdk.context;
-        console.log('✅ SDK context loaded:', ctx);
+        // Prevent MetaMask injection
+        if (typeof window !== 'undefined') {
+          delete (window as any).ethereum;
+        }
+
+        // Small delay to let SDK fully load
+        await new Promise(resolve => setTimeout(resolve, 200));
         
-        // THEN call ready
+        // Try to get context (may fail in some environments, that's ok)
+        try {
+          const ctx = await sdk.context;
+          console.log('✅ SDK context loaded:', ctx);
+        } catch (ctxError) {
+          console.warn('⚠️ Context unavailable (normal in some environments):', ctxError);
+        }
+        
+        // ALWAYS call ready, even if context fails
         sdk.actions.ready();
         console.log('✅ Ready called');
         
         setIsSDKReady(true);
       } catch (error) {
         console.error('❌ SDK init error:', error);
-        // Still call ready even on error
-        sdk.actions.ready();
+        // Still set ready and continue
+        try {
+          sdk.actions.ready();
+        } catch (readyError) {
+          console.error('❌ Ready call failed:', readyError);
+        }
         setIsSDKReady(true);
       }
     };
