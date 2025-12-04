@@ -6,7 +6,6 @@ import './MPCSampler.css';
 export default function MPCSampler() {
   const [selectedKit, setSelectedKit] = useState('hiphop');
   const [activePads, setActivePads] = useState<Record<number, boolean>>({});
-  const [showAudioPrompt, setShowAudioPrompt] = useState(true);
 
   useEffect(() => {
     return () => {
@@ -14,21 +13,17 @@ export default function MPCSampler() {
     };
   }, []);
 
-  const enableAudio = async () => {
-    try {
-      console.log('🎵 Enabling audio...');
-      await audioEngine.initialize();
-      console.log('✅ Audio enabled!');
-      setShowAudioPrompt(false);
-    } catch (error) {
-      console.error('❌ Failed to enable audio:', error);
-    }
-  };
-
-  const handlePadTrigger = (padIndex: number) => {
+  const handlePadTrigger = async (padIndex: number) => {
+    // Auto-enable audio on first tap
     if (!audioEngine.isReady()) {
-      console.warn('⚠️ Audio not ready');
-      return;
+      console.log('🎵 First tap - initializing audio...');
+      try {
+        await audioEngine.initialize();
+        console.log('✅ Audio initialized!');
+      } catch (error) {
+        console.error('❌ Failed to initialize audio:', error);
+        return;
+      }
     }
 
     const pad = drumKits[selectedKit].pads[padIndex];
@@ -54,16 +49,6 @@ export default function MPCSampler() {
 
   return (
     <div className="mpc-container">
-      {/* Audio Prompt Banner */}
-      {showAudioPrompt && (
-        <div className="audio-prompt-banner">
-          <span>🔊 Tap to enable sound</span>
-          <button className="audio-enable-btn" onClick={enableAudio}>
-            Enable
-          </button>
-        </div>
-      )}
-
       {/* LCD Screen */}
       <div className="lcd-screen">
         <div className="lcd-content">
