@@ -25,7 +25,6 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
   const recordedChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<number | null>(null);
 
-  // DON'T create AudioContext on mount - wait for user interaction
   useEffect(() => {
     return () => {
       if (audioContextRef.current) {
@@ -36,13 +35,11 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
 
   const enableAudio = async () => {
     try {
-      // Create AudioContext NOW, during user interaction
       console.log('🎵 Creating AudioContext during user tap...');
       audioContextRef.current = createAudioContext();
       
       console.log('📊 Initial state:', audioContextRef.current.state);
       
-      // Resume if suspended
       if (audioContextRef.current.state === 'suspended') {
         console.log('⏸️ Resuming...');
         await audioContextRef.current.resume();
@@ -50,7 +47,6 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
       
       console.log('📊 Final state:', audioContextRef.current.state);
       
-      // Play test beep to confirm
       const osc = audioContextRef.current.createOscillator();
       const gain = audioContextRef.current.createGain();
       osc.connect(gain);
@@ -79,12 +75,10 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
     const pad = drumKits[selectedKit].pads[padIndex];
     setActivePads(prev => ({ ...prev, [padIndex]: true }));
 
-    // Haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate(10);
     }
 
-    // Play the sample
     try {
       playSound(audioContextRef.current, pad.frequency, pad.type);
       console.log('🔊 Sound played');
@@ -197,11 +191,9 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // 👇 ADD THIS NEW FUNCTION HERE
   const testSimpleAudio = () => {
     console.log('🧪 Testing simple audio...');
     
-    // Try HTML5 Audio first
     const audio = new Audio();
     audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
     
@@ -209,7 +201,6 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
       .then(() => console.log('✅ HTML5 Audio works!'))
       .catch(err => console.error('❌ HTML5 Audio failed:', err));
     
-    // Try Web Audio API
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       console.log('📊 AudioContext state:', ctx.state);
@@ -233,8 +224,6 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
 
   return (
     <div className="mpc-container">
-    <div className="mpc-container">
-      {/* Audio Prompt Banner */}
       {showAudioPrompt && (
         <div className="audio-prompt-banner">
           <span>🔊 Tap to enable sound</span>
@@ -244,7 +233,6 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
         </div>
       )}
 
-      {/* LCD Screen */}
       <div className="lcd-screen">
         <div className="lcd-content">
           <div className="lcd-text">{currentKit.name.toUpperCase()} KIT</div>
@@ -261,7 +249,6 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
         </div>
       </div>
 
-      {/* Kit Selector */}
       <div className="kit-selector">
         <select
           value={selectedKit}
@@ -277,7 +264,6 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
         </select>
       </div>
 
-      {/* Pad Grid */}
       <div className="pad-grid">
         {currentKit.pads.map((pad, index) => (
           <button
@@ -295,7 +281,6 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
         ))}
       </div>
 
-      {/* Hardware Controls */}
       <div className="hardware-controls">
         {!isRecording ? (
           <button
@@ -332,7 +317,6 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
         </button>
       </div>
 
-      {/* Share Modal */}
       {showShareModal && (
         <div className="modal-overlay" onClick={() => setShowShareModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -361,6 +345,25 @@ export default function MPCSampler({ onBeatCreated }: MPCSamplerProps) {
           </div>
         </div>
       )}
+
+      <button 
+        onClick={testSimpleAudio}
+        style={{
+          position: 'fixed',
+          bottom: '100px',
+          right: '20px',
+          padding: '16px',
+          background: '#10b981',
+          color: 'white',
+          border: 'none',
+          borderRadius: '12px',
+          fontWeight: 'bold',
+          zIndex: 9999,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+        }}
+      >
+        TEST AUDIO
+      </button>
     </div>
   );
 }
