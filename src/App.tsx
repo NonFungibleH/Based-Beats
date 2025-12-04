@@ -4,7 +4,7 @@ import { base } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
 import sdk from '@farcaster/frame-sdk';
-import MPCSampler from './components/MPCSampler';
+import MPCSampler from './components/MPCSampler';  // This line should work
 import Feed from './components/Feed';
 import './App.css';
 
@@ -26,30 +26,25 @@ function App() {
   useEffect(() => {
     const init = async () => {
       try {
-        // Prevent MetaMask injection
         if (typeof window !== 'undefined') {
           delete (window as any).ethereum;
         }
 
-        // Small delay to let SDK fully load
         await new Promise(resolve => setTimeout(resolve, 200));
         
-        // Try to get context (may fail in some environments, that's ok)
         try {
           const ctx = await sdk.context;
           console.log('✅ SDK context loaded:', ctx);
         } catch (ctxError) {
-          console.warn('⚠️ Context unavailable (normal in some environments):', ctxError);
+          console.warn('⚠️ Context unavailable:', ctxError);
         }
         
-        // ALWAYS call ready, even if context fails
         sdk.actions.ready();
         console.log('✅ Ready called');
         
         setIsSDKReady(true);
       } catch (error) {
         console.error('❌ SDK init error:', error);
-        // Still set ready and continue
         try {
           sdk.actions.ready();
         } catch (readyError) {
