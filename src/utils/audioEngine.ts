@@ -1,88 +1,66 @@
-// HTML5 Audio-based engine with reduced latency
+import { audioSamples } from './audioSamples';
 
-class AudioSampleEngine {
-  private audioPool: Map<string, HTMLAudioElement[]> = new Map();
+class WebAudioEngine {
+  private context: AudioContext | null = null;
+  private buffers: Map<string, AudioBuffer> = new Map();
   private initialized = false;
 
   async initialize() {
     if (this.initialized) return;
 
-    console.log('🎵 Initializing audio samples...');
+    console.log('🎵 Initializing Web Audio API...');
 
-    const samples = [
-      'kick', 'snare', 'hihat', 'clap', 
-      'tom', 'perc', 'crash', 'rim'
-    ];
+    // Create AudioContext
+    this.context = new (window.AudioContext || (window as any).webkitAudioContext)();
 
-    // Create larger pool for better performance (10 instead of 5)
-    for (const sample of samples) {
-      const pool: HTMLAudioElement[] = [];
-      
-      for (let i = 0; i < 10; i++) {
-        const audio = new Audio();
-        audio.src = `/samples/${sample}.wav`;
-        audio.preload = 'auto';
-        audio.volume = 0.8;
-        
-        // CRITICAL: Load the audio immediately
-        audio.load();
-        
-        pool.push(audio);
-      }
-      
-      this.audioPool.set(sample, pool);
+    // Resume if suspended (mobile requirement)
+    if (this.context.state === 'suspended') {
+      await this.context.resume();
     }
 
-    // Wait for samples to preload
-    console.log('⏳ Preloading samples...');
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Decode all samples
+    const decodePromises = Object.entries(audioSamples).map(async ([name, base64]) => {
+      try {
+        // Convert base64 to ArrayBuffer
+        const binaryString = atob(base64.split(',')[1]);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
 
-    // Unlock audio on iOS/WebView
-    try {
-      const unlock = new Audio();
-      unlock.src = '/samples/kick.wav';
-      unlock.volume = 0.01;
-      const playPromise = unlock.play();
-      
-      if (playPromise !== undefined) {
-        await playPromise;
-        unlock.pause();
-        unlock.currentTime = 0;
+        // Decode audio data
+        const audioBuffer = await this.context!.decodeAudioData(bytes.buffer);
+        this.buffers.set(name, audioBuffer);
+        console.log(`✅ Loaded ${name}`);
+      } catch (err) {
+        console.error(`❌ Failed to decode ${name}:`, err);
       }
-      
-      console.log('✅ Audio unlocked');
-    } catch (e) {
-      console.warn('⚠️ Audio unlock attempt:', e);
-    }
+    });
+
+    await Promise.all(decodePromises);
 
     this.initialized = true;
-    console.log('✅ Audio engine ready');
+    console.log('✅ Audio engine ready - ZERO latency!');
   }
 
   playSound(sampleName: string) {
-    if (!this.initialized) {
+    if (!this.context || !this.initialized) {
       console.warn('⚠️ Audio not initialized');
       return;
     }
 
-    const pool = this.audioPool.get(sampleName);
-    if (!pool) {
+    const buffer = this.buffers.get(sampleName);
+    if (!buffer) {
       console.warn(`⚠️ Sample not found: ${sampleName}`);
       return;
     }
 
-    // Find first paused audio (pre-loaded and ready)
-    const audio = pool.find(a => a.paused) || pool[0];
-    
-    // Reset and play immediately
-    audio.currentTime = 0;
-    
-    // Use cloneNode for even better performance (new approach)
-    const clone = audio.cloneNode() as HTMLAudioElement;
-    clone.volume = audio.volume;
-    clone.play().catch(err => {
-      console.error('❌ Play failed:', err);
-    });
+    // Create source node (instant playback)
+    const source = this.context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(this.context.destination);
+    source.start(0);
   }
 
   isReady() {
@@ -90,8 +68,9 @@ class AudioSampleEngine {
   }
 }
 
-export const audioEngine = new AudioSampleEngine();
+export const audioEngine = new WebAudioEngine();
 
+// Legacy exports
 export const createAudioContext = () => new AudioContext();
 export const playSound = (_ctx: AudioContext, _freq: number, _type: string) => {
   // Deprecated
