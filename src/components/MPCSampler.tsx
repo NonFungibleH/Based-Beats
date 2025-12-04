@@ -23,7 +23,11 @@ export default function MPCSampler() {
     }
   };
 
-  const handlePadTrigger = (padIndex: number) => {
+  const handlePadTrigger = (padIndex: number, e: React.TouchEvent | React.MouseEvent) => {
+    // Prevent both touch and mouse events from firing
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!audioEngine.isReady()) {
       return;
     }
@@ -88,14 +92,8 @@ export default function MPCSampler() {
           <button
             key={index}
             className={`pad ${activePads[index] ? 'active' : ''}`}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              handlePadTrigger(index);
-            }}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handlePadTrigger(index);
-            }}
+            onTouchStart={(e) => handlePadTrigger(index, e)}
+            onMouseDown={(e) => handlePadTrigger(index, e)}
           >
             <span className="pad-number">{(index + 1).toString().padStart(2, '0')}</span>
             <span className="pad-name">{pad.name}</span>
