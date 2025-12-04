@@ -1,4 +1,4 @@
-// HTML5 Audio-based engine (works in all mobile WebViews)
+// HTML5 Audio-based engine with reduced latency
 
 class AudioSampleEngine {
   private audioPool: Map<string, HTMLAudioElement[]> = new Map();
@@ -9,28 +9,35 @@ class AudioSampleEngine {
 
     console.log('🎵 Initializing audio samples...');
 
-    // List of samples to load (only ones we have)
     const samples = [
       'kick', 'snare', 'hihat', 'clap', 
       'tom', 'perc', 'crash', 'rim'
     ];
 
-    // Create audio pool for each sample (5 instances for polyphony)
+    // Create larger pool for better performance (10 instead of 5)
     for (const sample of samples) {
       const pool: HTMLAudioElement[] = [];
       
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 10; i++) {
         const audio = new Audio();
         audio.src = `/samples/${sample}.wav`;
         audio.preload = 'auto';
         audio.volume = 0.8;
+        
+        // CRITICAL: Load the audio immediately
+        audio.load();
+        
         pool.push(audio);
       }
       
       this.audioPool.set(sample, pool);
     }
 
-    // Unlock audio on iOS/WebView by playing silent audio
+    // Wait for samples to preload
+    console.log('⏳ Preloading samples...');
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Unlock audio on iOS/WebView
     try {
       const unlock = new Audio();
       unlock.src = '/samples/kick.wav';
@@ -64,11 +71,16 @@ class AudioSampleEngine {
       return;
     }
 
-    // Find available audio element or use first one
-    const audio = pool.find(a => a.paused || a.ended) || pool[0];
+    // Find first paused audio (pre-loaded and ready)
+    const audio = pool.find(a => a.paused) || pool[0];
     
+    // Reset and play immediately
     audio.currentTime = 0;
-    audio.play().catch(err => {
+    
+    // Use cloneNode for even better performance (new approach)
+    const clone = audio.cloneNode() as HTMLAudioElement;
+    clone.volume = audio.volume;
+    clone.play().catch(err => {
       console.error('❌ Play failed:', err);
     });
   }
@@ -80,8 +92,7 @@ class AudioSampleEngine {
 
 export const audioEngine = new AudioSampleEngine();
 
-// Legacy exports (kept for backwards compatibility but not used)
 export const createAudioContext = () => new AudioContext();
 export const playSound = (_ctx: AudioContext, _freq: number, _type: string) => {
-  // Deprecated - now using audioEngine.playSound()
+  // Deprecated
 };
