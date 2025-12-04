@@ -7,7 +7,7 @@
   "baseBuilder": {
     "ownerAddress": "0xC885476F424F92717C02180318965138282aB7"
   },
-  "miniapp": {
+  "miniapp": { 
     "version": "1",
     "name": "BeatPad",
     "homeUrl": "https://based-beats.vercel.app",
