@@ -15,29 +15,39 @@ export default function MPCSampler() {
   const [equalizerBars, setEqualizerBars] = useState<number[]>(Array(16).fill(0));
   const metronomeInterval = useRef<number | null>(null);
   const clickAudio = useRef<HTMLAudioElement | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
-  // Create metronome click sound
+  // Frequency patterns for different drum types (simulate real frequency response)
+  const frequencyPatterns = {
+    kick: [90, 75, 50, 30, 20, 15, 10, 8, 5, 3, 2, 1, 0, 0, 0, 0],
+    snare: [20, 30, 60, 80, 90, 75, 50, 35, 20, 15, 10, 8, 5, 3, 2, 1],
+    hihat: [5, 10, 20, 40, 60, 80, 90, 95, 85, 70, 55, 40, 25, 15, 8, 3],
+    clap: [15, 25, 45, 70, 85, 90, 80, 60, 40, 25, 15, 10, 5, 3, 2, 1],
+    tom: [70, 60, 45, 30, 20, 15, 12, 10, 7, 5, 3, 2, 1, 0, 0, 0],
+    perc: [10, 20, 35, 50, 65, 75, 80, 70, 55, 40, 25, 15, 10, 5, 3, 1],
+    crash: [20, 30, 45, 60, 75, 85, 90, 85, 75, 60, 45, 30, 20, 12, 7, 3],
+    rim: [5, 15, 30, 50, 70, 85, 90, 80, 60, 40, 25, 15, 10, 5, 3, 1],
+  };
+
   useEffect(() => {
     clickAudio.current = new Audio();
-    clickAudio.current.src = '/samples/rim.wav'; // Use rim sample for click
+    clickAudio.current.src = '/samples/rim.wav';
     clickAudio.current.volume = 0.3;
   }, []);
 
-  // Metronome
   useEffect(() => {
     if (metronomeOn && audioEngine.isReady()) {
       const interval = (60 / tempo) * 1000;
       metronomeInterval.current = window.setInterval(() => {
-        // Play click sound
         if (clickAudio.current) {
           clickAudio.current.currentTime = 0;
           clickAudio.current.play().catch(() => {});
         }
         
-        // Visual
         setEqualizerBars(Array(16).fill(60));
         
-        // Haptic
         if ('vibrate' in navigator) {
           navigator.vibrate(5);
         }
@@ -67,6 +77,31 @@ export default function MPCSampler() {
     }
   };
 
+  const animateFrequencyPattern = (sampleType: string) => {
+    const pattern = frequencyPatterns[sampleType as keyof typeof frequencyPatterns] || 
+                    frequencyPatterns.perc;
+    
+    // Animate the pattern
+    let frame = 0;
+    const animate = () => {
+      if (frame < 15) {
+        const decay = 1 - (frame / 15);
+        setEqualizerBars(pattern.map(val => val * decay));
+        frame++;
+        animationFrameRef.current = requestAnimationFrame(animate);
+      } else {
+        if (!metronomeOn) {
+          setEqualizerBars(Array(16).fill(0));
+        }
+      }
+    };
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    animate();
+  };
+
   const handlePadTrigger = (padIndex: number) => {
     const now = Date.now();
     const lastTime = lastTriggerTime.current.get(padIndex) || 0;
@@ -90,13 +125,8 @@ export default function MPCSampler() {
 
     audioEngine.playSound(pad.sample);
 
-    // Spike equalizer
-    setEqualizerBars(Array(16).fill(0).map(() => 50 + Math.random() * 50));
-    setTimeout(() => {
-      if (!metronomeOn) {
-        setEqualizerBars(Array(16).fill(0));
-      }
-    }, 150);
+    // Animate equalizer with sample-specific frequency pattern
+    animateFrequencyPattern(pad.sample);
 
     setTimeout(() => {
       setActivePads(prev => {
@@ -149,9 +179,10 @@ export default function MPCSampler() {
         </div>
       )}
 
+      {/* New Logo */}
       <div className="beatpad-logo">
-        <span className="logo-fire">🔥</span>
-        <span className="logo-text">BeatPad</span>
+        <span className="logo-based">Based</span>
+        <span className="logo-beatpad">BeatPad</span>
       </div>
 
       <div className="lcd-screen-equalizer" onClick={() => setShowKitSelector(true)}>
