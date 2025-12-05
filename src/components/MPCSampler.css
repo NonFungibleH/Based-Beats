@@ -5,6 +5,70 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
+  padding-bottom: 20px;
+}
+
+/* Audio Prompt Overlay */
+.audio-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.audio-prompt-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border: 2px solid #ff6b35;
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(255, 107, 53, 0.4);
+}
+
+.prompt-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.audio-prompt-card h2 {
+  color: #fbbf24;
+  font-size: 28px;
+  font-family: 'Courier New', monospace;
+  margin: 0 0 12px 0;
+  letter-spacing: 2px;
+}
+
+.audio-prompt-card p {
+  color: #9ca3af;
+  font-size: 16px;
+  margin-bottom: 28px;
+}
+
+.audio-enable-btn {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  border: none;
+  padding: 16px 48px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+  transition: all 0.3s ease;
+}
+
+.audio-enable-btn:active {
+  transform: scale(0.95);
 }
 
 /* Logo */
@@ -41,7 +105,6 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: 3px;
-  text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
 }
 
 /* LCD Screen with Equalizer */
@@ -119,11 +182,158 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
+/* Kit Selector Modal */
+.kit-selector-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.kit-selector-content {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border: 2px solid rgba(255, 107, 53, 0.3);
+  border-radius: 24px;
+  padding: 32px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.kit-selector-content h2 {
+  color: #fbbf24;
+  font-size: 28px;
+  font-family: 'Courier New', monospace;
+  margin: 0 0 24px 0;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.kit-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kit-option {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 107, 53, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.kit-option:active {
+  transform: scale(0.98);
+}
+
+.kit-option.selected {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  border-color: #ff8c5a;
+}
+
+.kit-name {
+  color: #f3f4f6;
+  font-size: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.kit-option.selected .kit-name {
+  color: white;
+}
+
+.check-mark {
+  font-size: 24px;
+  color: white;
+}
+
+/* Large Pad Grid */
+.pad-grid-large {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.pad-large {
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+  border: 4px solid #1a1a1a;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.5),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  min-height: 100px;
+}
+
+.pad-large:active,
+.pad-large.active {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  border-color: #ff8c5a;
+  transform: scale(0.94);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(255, 107, 53, 0.8),
+    inset 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.pad-number-large {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #6b7280;
+  font-family: 'Courier New', monospace;
+}
+
+.pad-large.active .pad-number-large {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.pad-name-large {
+  font-size: 14px;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pad-large.active .pad-name-large {
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 /* Control Panel */
 .control-panel {
   display: flex;
   gap: 16px;
-  margin-top: 20px;
   padding: 20px;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   border-radius: 16px;
@@ -214,6 +424,11 @@
   box-shadow: 0 2px 4px rgba(255, 107, 53, 0.6);
 }
 
+.control-button.active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+}
+
 .button-icon {
   font-size: 24px;
 }
@@ -228,6 +443,10 @@
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
+  .mpc-fullscreen {
+    padding: 16px;
+  }
+
   .logo-text {
     font-size: 24px;
   }
@@ -249,10 +468,30 @@
     width: 50px;
     height: 50px;
   }
+
+  .pad-grid-large {
+    gap: 12px;
+  }
+
+  .pad-name-large {
+    font-size: 11px;
+  }
+
+  .pad-large {
+    min-height: 80px;
+  }
 }
 
-/* Control button active state */
-.control-button.active {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+@media (max-height: 700px) {
+  .lcd-screen-equalizer {
+    padding: 20px;
+  }
+
+  .kit-name-overlay {
+    font-size: 20px;
+  }
+
+  .pad-large {
+    min-height: 70px;
+  }
 }
