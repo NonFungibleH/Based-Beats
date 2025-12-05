@@ -4,8 +4,7 @@ import { base } from 'wagmi/chains';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { OnchainKitProvider } from '@coinbase/onchainkit';
 import sdk from '@farcaster/frame-sdk';
-import MPCSampler from './components/MPCSampler';  // This line should work
-import Feed from './components/Feed';
+import MPCSampler from './components/MPCSampler';
 import './App.css';
 
 const config = createConfig({
@@ -17,10 +16,7 @@ const config = createConfig({
 
 const queryClient = new QueryClient();
 
-type Tab = 'create' | 'feed';
-
 function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('create');
   const [isSDKReady, setIsSDKReady] = useState(false);
 
   useEffect(() => {
@@ -84,36 +80,7 @@ function App() {
           apiKey={import.meta.env.VITE_ONCHAINKIT_API_KEY}
           chain={base}
         >
-          <div className="app">
-            <header className="app-header">
-              <div className="logo">
-                <span className="fire">🔥</span>
-                <span className="title">BeatPad</span>
-              </div>
-              <div className="subtitle">by 3UILD</div>
-            </header>
-
-            <nav className="bottom-nav">
-              <button
-                className={`nav-button ${activeTab === 'create' ? 'active' : ''}`}
-                onClick={() => setActiveTab('create')}
-              >
-                <span className="nav-icon">🎛️</span>
-                <span className="nav-label">Create</span>
-              </button>
-              <button
-                className={`nav-button ${activeTab === 'feed' ? 'active' : ''}`}
-                onClick={() => setActiveTab('feed')}
-              >
-                <span className="nav-icon">📱</span>
-                <span className="nav-label">Feed</span>
-              </button>
-            </nav>
-
-            <main className="app-content">
-              {activeTab === 'create' ? <MPCSampler /> : <Feed />}
-            </main>
-          </div>
+          <MPCSampler />
         </OnchainKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
