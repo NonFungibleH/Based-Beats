@@ -1,129 +1,80 @@
-/* Fullscreen Layout */
-.mpc-fullscreen {
-  min-height: 100vh;
-  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  padding-bottom: 20px;
-}
-
-/* Audio Prompt Overlay */
-.audio-prompt-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.95);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  padding: 20px;
-}
-
-.audio-prompt-card {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  border: 2px solid #ff6b35;
-  border-radius: 24px;
-  padding: 40px;
-  text-align: center;
-  max-width: 400px;
-  box-shadow: 0 20px 60px rgba(255, 107, 53, 0.4);
-}
-
-.prompt-icon {
-  font-size: 64px;
-  margin-bottom: 20px;
-}
-
-.audio-prompt-card h2 {
-  color: #fbbf24;
-  font-size: 28px;
-  font-family: 'Courier New', monospace;
-  margin: 0 0 12px 0;
-  letter-spacing: 2px;
-}
-
-.audio-prompt-card p {
-  color: #9ca3af;
-  font-size: 16px;
-  margin-bottom: 28px;
-}
-
-.audio-enable-btn {
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-  color: white;
-  border: none;
-  padding: 16px 48px;
-  border-radius: 12px;
-  font-size: 18px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
-  transition: all 0.3s ease;
-}
-
-.audio-enable-btn:active {
-  transform: scale(0.95);
-}
-
-/* Logo - Based BeatPad */
+/* Updated Logo - Smaller, thicker font, darker blue */
 .beatpad-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 16px;
   justify-content: flex-start;
 }
 
 .logo-based {
-  font-size: 32px;
-  font-weight: bold;
-  font-family: 'Courier New', monospace;
-  color: #3b82f6;
-  letter-spacing: 2px;
-  text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  font-size: 22px;
+  font-weight: 900;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  color: #1e40af;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(30, 64, 175, 0.4);
 }
 
 .logo-beatpad {
-  font-size: 32px;
-  font-weight: bold;
-  font-family: 'Courier New', monospace;
+  font-size: 22px;
+  font-weight: 900;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   color: #ff6b35;
-  letter-spacing: 2px;
-  text-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(255, 107, 53, 0.4);
 }
 
-/* Remove old logo styles if they exist */
-.logo-fire {
-  display: none;
-}
-
-.logo-text {
-  display: none;
-}
-
-/* LCD Screen with Equalizer */
-.lcd-screen-equalizer {
+/* New LCD Screen Layout */
+.lcd-screen-new {
   background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
   border: 4px solid #000;
   border-radius: 16px;
-  padding: 24px;
   margin-bottom: 24px;
   box-shadow: 
     inset 0 4px 12px rgba(0, 0, 0, 0.8),
     0 4px 8px rgba(0, 0, 0, 0.4);
-  position: relative;
-  cursor: pointer;
-  min-height: 140px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
+}
+
+/* Top section - Kit name */
+.lcd-top-section {
+  padding: 16px 24px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.lcd-top-section:active {
+  background: rgba(255, 107, 53, 0.1);
+}
+
+.kit-display {
+  font-family: 'Courier New', monospace;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fbbf24;
+  letter-spacing: 3px;
+  text-shadow: 0 0 15px rgba(251, 191, 36, 0.8);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.kit-hint {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: #ff6b35;
+  letter-spacing: 1px;
+  opacity: 0.6;
+  text-align: center;
+}
+
+/* Bottom section - Equalizer */
+.lcd-eq-section {
+  padding: 20px 24px;
+  position: relative;
+  min-height: 100px;
 }
 
 .equalizer-container {
@@ -133,10 +84,6 @@
   height: 80px;
   width: 100%;
   gap: 4px;
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
 }
 
 .eq-bar-wrapper {
@@ -154,185 +101,44 @@
   box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
 }
 
-.lcd-overlay-text {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  pointer-events: none;
-}
-
-.kit-name-overlay {
-  font-family: 'Courier New', monospace;
-  font-size: 28px;
-  font-weight: bold;
-  color: #fbbf24;
-  letter-spacing: 4px;
-  text-shadow: 
-    0 0 20px rgba(251, 191, 36, 0.8),
-    0 2px 4px rgba(0, 0, 0, 0.8);
-  margin-bottom: 8px;
-}
-
-.tap-hint {
-  font-family: 'Courier New', monospace;
-  font-size: 11px;
-  color: #ff6b35;
-  letter-spacing: 2px;
-  opacity: 0.7;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-}
-
-/* Kit Selector Modal */
-.kit-selector-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.95);
+/* Beat position indicators */
+.beat-indicators {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
-}
-
-.kit-selector-content {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  border: 2px solid rgba(255, 107, 53, 0.3);
-  border-radius: 24px;
-  padding: 32px;
-  max-width: 500px;
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.kit-selector-content h2 {
-  color: #fbbf24;
-  font-size: 28px;
-  font-family: 'Courier New', monospace;
-  margin: 0 0 24px 0;
-  text-align: center;
-  letter-spacing: 2px;
-}
-
-.kit-options {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.kit-option {
-  background: rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(255, 107, 53, 0.3);
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.kit-option:active {
-  transform: scale(0.98);
-}
-
-.kit-option.selected {
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-  border-color: #ff8c5a;
-}
-
-.kit-name {
-  color: #f3f4f6;
-  font-size: 20px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.kit-option.selected .kit-name {
-  color: white;
-}
-
-.check-mark {
-  font-size: 24px;
-  color: white;
-}
-
-/* Large Pad Grid */
-.pad-grid-large {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  flex: 1;
-  margin-bottom: 20px;
-}
-
-.pad-large {
-  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-  border: 4px solid #1a1a1a;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   gap: 8px;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.15s ease;
-  box-shadow: 
-    0 6px 12px rgba(0, 0, 0, 0.5),
-    inset 0 2px 0 rgba(255, 255, 255, 0.1);
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  min-height: 100px;
+  justify-content: center;
+  margin-top: 12px;
 }
 
-.pad-large:active,
-.pad-large.active {
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+.beat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(156, 163, 175, 0.3);
+  border: 1px solid rgba(156, 163, 175, 0.5);
+  transition: all 0.1s ease;
+}
+
+.beat-dot.downbeat {
+  width: 10px;
+  height: 10px;
+}
+
+.beat-dot.active {
+  background: #ff6b35;
   border-color: #ff8c5a;
-  transform: scale(0.94);
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.6),
-    0 0 30px rgba(255, 107, 53, 0.8),
-    inset 0 0 30px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.8);
+  transform: scale(1.3);
 }
 
-.pad-number-large {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #6b7280;
-  font-family: 'Courier New', monospace;
+/* Remove old LCD styles */
+.lcd-screen-equalizer {
+  display: none;
 }
 
-.pad-large.active .pad-number-large {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.pad-name-large {
-  font-size: 14px;
-  font-weight: 700;
-  color: #9ca3af;
-  letter-spacing: 1px;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.pad-large.active .pad-name-large {
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Control Panel */
+/* Control Panel - Only 3 controls now */
 .control-panel {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   padding: 20px;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
@@ -341,157 +147,12 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
-.control-knob {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.knob-container {
-  width: 60px;
-  height: 60px;
-  position: relative;
-}
-
-.knob {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-  border: 3px solid #000;
-  border-radius: 50%;
-  position: relative;
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.5),
-    inset 0 2px 4px rgba(255, 255, 255, 0.1);
-  transition: transform 0.1s ease-out;
-}
-
-.knob-indicator {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 3px;
-  height: 12px;
-  background: #ff6b35;
-  border-radius: 2px;
-  box-shadow: 0 0 8px rgba(255, 107, 53, 0.8);
-}
-
-.knob-slider {
-  position: absolute;
-  opacity: 0;
-  width: 60px;
-  height: 60px;
-  cursor: pointer;
-}
-
-.knob-label {
-  font-size: 10px;
-  font-weight: bold;
-  color: #9ca3af;
-  letter-spacing: 1px;
-  font-family: 'Courier New', monospace;
-}
-
-.knob-value {
-  font-size: 14px;
-  font-weight: bold;
-  color: #fbbf24;
-  font-family: 'Courier New', monospace;
-}
-
-.control-button {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-  border: 3px solid #000;
-  border-radius: 12px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 8px rgba(255, 107, 53, 0.4);
-}
-
-.control-button:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.6);
-}
-
-.control-button.active {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
-}
-
-.button-icon {
-  font-size: 24px;
-}
-
-.button-text {
-  font-size: 11px;
-  font-weight: bold;
-  color: white;
-  letter-spacing: 1px;
-  font-family: 'Courier New', monospace;
-}
-
-/* Mobile adjustments */
 @media (max-width: 768px) {
-  .mpc-fullscreen {
-    padding: 16px;
+  .logo-based, .logo-beatpad {
+    font-size: 18px;
   }
 
-  .logo-text {
-    font-size: 24px;
-  }
-
-  .logo-fire {
-    font-size: 28px;
-  }
-
-  .kit-name-overlay {
+  .kit-display {
     font-size: 20px;
-  }
-
-  .control-panel {
-    gap: 12px;
-    padding: 16px;
-  }
-
-  .knob-container {
-    width: 50px;
-    height: 50px;
-  }
-
-  .pad-grid-large {
-    gap: 12px;
-  }
-
-  .pad-name-large {
-    font-size: 11px;
-  }
-
-  .pad-large {
-    min-height: 80px;
-  }
-}
-
-@media (max-height: 700px) {
-  .lcd-screen-equalizer {
-    padding: 20px;
-  }
-
-  .kit-name-overlay {
-    font-size: 20px;
-  }
-
-  .pad-large {
-    min-height: 70px;
   }
 }
