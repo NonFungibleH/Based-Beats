@@ -7,6 +7,7 @@ export default function MPCSampler() {
   const [selectedKit, setSelectedKit] = useState('hiphop');
   const [activePads, setActivePads] = useState<Record<number, boolean>>({});
   const [showAudioPrompt, setShowAudioPrompt] = useState(true);
+  const [showKitSelector, setShowKitSelector] = useState(false);
   const lastTriggerTime = useRef<Map<number, number>>(new Map());
 
   useEffect(() => {
@@ -25,7 +26,6 @@ export default function MPCSampler() {
   };
 
   const handlePadTrigger = (padIndex: number) => {
-    // Debounce - prevent double triggers within 100ms
     const now = Date.now();
     const lastTime = lastTriggerTime.current.get(padIndex) || 0;
     
@@ -46,7 +46,6 @@ export default function MPCSampler() {
       navigator.vibrate(10);
     }
 
-    // Play sound
     audioEngine.playSound(pad.sample);
 
     setTimeout(() => {
@@ -58,54 +57,71 @@ export default function MPCSampler() {
     }, 150);
   };
 
+  const handleKitSelect = (kitKey: string) => {
+    setSelectedKit(kitKey);
+    setShowKitSelector(false);
+  };
+
   const currentKit = drumKits[selectedKit];
 
   return (
-    <div className="mpc-container">
+    <div className="mpc-fullscreen">
+      {/* Audio Prompt Banner */}
       {showAudioPrompt && (
-        <div className="audio-prompt-banner">
-          <span>🔊 Tap to enable sound</span>
-          <button className="audio-enable-btn" onClick={enableAudio}>
-            Enable
-          </button>
+        <div className="audio-prompt-overlay">
+          <div className="audio-prompt-card">
+            <div className="prompt-icon">🔊</div>
+            <h2>Enable Sound</h2>
+            <p>Tap to start making beats</p>
+            <button className="audio-enable-btn" onClick={enableAudio}>
+              Enable Audio
+            </button>
+          </div>
         </div>
       )}
 
-      <div className="lcd-screen">
-        <div className="lcd-content">
-          <div className="lcd-text">{currentKit.name.toUpperCase()} KIT</div>
-          <div className="lcd-status">
-            <span>TAP PADS TO PLAY</span>
+      {/* Kit Selector Modal */}
+      {showKitSelector && (
+        <div className="kit-selector-modal" onClick={() => setShowKitSelector(false)}>
+          <div className="kit-selector-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Choose Drum Kit</h2>
+            <div className="kit-options">
+              {Object.entries(drumKits).map(([key, kit]) => (
+                <button
+                  key={key}
+                  className={`kit-option ${selectedKit === key ? 'selected' : ''}`}
+                  onClick={() => handleKitSelect(key)}
+                >
+                  <span className="kit-name">{kit.name}</span>
+                  {selectedKit === key && <span className="check-mark">✓</span>}
+                </button>
+              ))}
+            </div>
           </div>
+        </div>
+      )}
+
+      {/* LCD Screen - Larger & Interactive */}
+      <div className="lcd-screen-large" onClick={() => setShowKitSelector(true)}>
+        <div className="lcd-content-large">
+          <div className="lcd-kit-name">{currentKit.name.toUpperCase()}</div>
+          <div className="lcd-instruction">TAP TO CHANGE KIT</div>
         </div>
       </div>
 
-      <div className="kit-selector">
-        <select
-          value={selectedKit}
-          onChange={(e) => setSelectedKit(e.target.value)}
-          className="kit-select"
-        >
-          {Object.entries(drumKits).map(([key, kit]) => (
-            <option key={key} value={key}>
-              {kit.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="pad-grid">
+      {/* Pad Grid - Larger */}
+      <div className="pad-grid-large">
         {currentKit.pads.map((pad, index) => (
           <button
             key={index}
-            className={`pad ${activePads[index] ? 'active' : ''}`}
+            className={`pad-large ${activePads[index] ? 'active' : ''}`}
             onTouchStart={(e) => {
               e.preventDefault();
               handlePadTrigger(index);
             }}
           >
-            <span className="pad-number">{(index + 1).toString().padStart(2, '0')}</span>
-            <span className="pad-name">{pad.name}</span>
+            <span className="pad-number-large">{(index + 1).toString().padStart(2, '0')}</span>
+            <span className="pad-name-large">{pad.name}</span>
           </button>
         ))}
       </div>
