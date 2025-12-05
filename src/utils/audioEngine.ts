@@ -1,96 +1,69 @@
-// Ultra-low latency Web Audio API engine with debugging
+// Optimized HTML5 Audio - single play, minimal latency
 
-class WebAudioEngine {
-  private context: AudioContext | null = null;
-  private buffers: Map<string, AudioBuffer> = new Map();
+class OptimizedAudioEngine {
+  private audioPools: Map<string, HTMLAudioElement[]> = new Map();
   private initialized = false;
 
   async initialize() {
-    if (this.initialized) {
-      alert('Already initialized');
-      return;
-    }
+    if (this.initialized) return;
 
-    alert('Starting Web Audio initialization...');
-
-    try {
-      // Create AudioContext
-      this.context = new (window.AudioContext || (window as any).webkitAudioContext)();
-      alert(`AudioContext created. State: ${this.context.state}`);
-
-      // Resume if suspended
-      if (this.context.state === 'suspended') {
-        await this.context.resume();
-        alert(`Resumed. New state: ${this.context.state}`);
+    const samples = ['kick', 'snare', 'hihat', 'clap', 'tom', 'perc', 'crash', 'rim'];
+    
+    // Create pool of 3 audio elements per sample for polyphony
+    for (const sample of samples) {
+      const pool: HTMLAudioElement[] = [];
+      
+      for (let i = 0; i < 3; i++) {
+        const audio = new Audio();
+        audio.src = `/samples/${sample}.wav`;
+        audio.preload = 'auto';
+        audio.volume = 0.8;
+        audio.load();
+        pool.push(audio);
       }
-
-      // Load all samples
-      const samples = ['kick', 'snare', 'hihat', 'clap', 'tom', 'perc', 'crash', 'rim'];
-      alert(`Loading ${samples.length} samples...`);
       
-      const loadPromises = samples.map(async (sample) => {
-        try {
-          const url = `/samples/${sample}.wav`;
-          alert(`Fetching ${url}...`);
-          
-          const response = await fetch(url);
-          
-          if (!response.ok) {
-            alert(`Failed to fetch ${sample}: ${response.status}`);
-            return;
-          }
-          
-          const arrayBuffer = await response.arrayBuffer();
-          alert(`Got ${sample} data: ${arrayBuffer.byteLength} bytes`);
-          
-          const audioBuffer = await this.context!.decodeAudioData(arrayBuffer);
-          this.buffers.set(sample, audioBuffer);
-          alert(`✅ Decoded ${sample}: ${audioBuffer.duration.toFixed(2)}s`);
-          
-        } catch (err) {
-          alert(`❌ Error loading ${sample}: ${err}`);
-        }
-      });
-
-      await Promise.all(loadPromises);
-
-      this.initialized = true;
-      alert(`✅ Ready! Loaded ${this.buffers.size} of ${samples.length} samples`);
-      
-    } catch (error) {
-      alert(`❌ Init failed: ${error}`);
-      throw error;
+      this.audioPools.set(sample, pool);
     }
+
+    // Wait a moment for preloading
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Unlock audio with silent play
+    const unlock = new Audio('/samples/kick.wav');
+    unlock.volume = 0.01;
+    try {
+      await unlock.play();
+      unlock.pause();
+    } catch (e) {
+      // Ignore unlock errors
+    }
+
+    this.initialized = true;
   }
 
   playSound(sampleName: string) {
-    if (!this.context || !this.initialized) {
-      alert('Audio not ready!');
+    if (!this.initialized) {
       return;
     }
 
-    const buffer = this.buffers.get(sampleName);
-    if (!buffer) {
-      alert(`Sample "${sampleName}" not found! Available: ${Array.from(this.buffers.keys()).join(', ')}`);
+    const pool = this.audioPools.get(sampleName);
+    if (!pool) {
       return;
     }
 
-    try {
-      const source = this.context.createBufferSource();
-      const gainNode = this.context.createGain();
-      
-      source.buffer = buffer;
-      source.connect(gainNode);
-      gainNode.connect(this.context.destination);
-      
-      gainNode.gain.value = 0.8;
-      source.start(0);
-      
-      console.log(`🔊 Playing ${sampleName}`);
-      
-    } catch (err) {
-      alert(`Playback error: ${err}`);
+    // Find a paused audio element (not currently playing)
+    let audio = pool.find(a => a.paused);
+    
+    // If all are playing, use the first one (will cut it off)
+    if (!audio) {
+      audio = pool[0];
     }
+
+    // Reset to start and play
+    audio.currentTime = 0;
+    audio.play().catch(() => {
+      // Silently fail
+    });
   }
 
   isReady() {
@@ -98,7 +71,7 @@ class WebAudioEngine {
   }
 }
 
-export const audioEngine = new WebAudioEngine();
+export const audioEngine = new OptimizedAudioEngine();
 
 export const createAudioContext = () => new AudioContext();
 export const playSound = (_ctx: AudioContext, _freq: number, _type: string) => {};
