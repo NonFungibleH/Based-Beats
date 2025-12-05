@@ -15,18 +15,16 @@ export default function MPCSampler() {
   const [isPlaying, setIsPlaying] = useState(false);
   const lastTriggerTime = useRef<Map<number, number>>(new Map());
   const [equalizerBars, setEqualizerBars] = useState<number[]>(Array(16).fill(0));
-  const [beatPosition, setBeatPosition] = useState(0); // 0-15 for 4 bars (16 beats)
+  const [beatPosition, setBeatPosition] = useState(0);
   const metronomeInterval = useRef<number | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const recordedEvents = useRef<Array<{time: number, padIndex: number}>>([]);
   const recordingStartTime = useRef<number>(0);
   const playbackTimeout = useRef<number | null>(null);
 
-  // Create metronome click sounds
   const clickAudioHigh = useRef<HTMLAudioElement | null>(null);
   const clickAudioLow = useRef<HTMLAudioElement | null>(null);
 
-  // Frequency patterns for different drum types
   const frequencyPatterns = {
     kick: [90, 75, 50, 30, 20, 15, 10, 8, 5, 3, 2, 1, 0, 0, 0, 0],
     snare: [20, 30, 60, 80, 90, 75, 50, 35, 20, 15, 10, 8, 5, 3, 2, 1],
@@ -39,68 +37,75 @@ export default function MPCSampler() {
   };
 
   useEffect(() => {
-  // High click for downbeats - use hihat sample for click
-  clickAudioHigh.current = new Audio();
-  clickAudioHigh.current.src = '/samples/hihat.wav';
-  clickAudioHigh.current.volume = 0.5;
-  
-  // Low click for other beats
-  clickAudioLow.current = new Audio();
-  clickAudioLow.current.src = '/samples/hihat.wav';
-  clickAudioLow.current.volume = 0.2;
-}, []);
+    // Start preloading audio IMMEDIATELY (before user taps enable)
+    audioEngine.initialize().catch(() => {});
+    
+    // High click for downbeats
+    clickAudioHigh.current = new Audio();
+    clickAudioHigh.current.src = '/samples/hihat.wav';
+    clickAudioHigh.current.volume = 0.5;
+    clickAudioHigh.current.load();
+    
+    // Low click for other beats
+    clickAudioLow.current = new Audio();
+    clickAudioLow.current.src = '/samples/hihat.wav';
+    clickAudioLow.current.volume = 0.2;
+    clickAudioLow.current.load();
+  }, []);
 
-// Metronome with 16 beat positions
-useEffect(() => {
-  if (metronomeOn && audioEngine.isReady()) {
-    const interval = (60 / tempo) * 1000;
-    metronomeInterval.current = window.setInterval(() => {
-      const nextPosition = (beatPosition + 1) % 16;
-      
-      // Play click sound
-      const isDownbeat = nextPosition === 0 || nextPosition === 4 || nextPosition === 8 || nextPosition === 12;
-      const clickSound = isDownbeat ? clickAudioHigh.current : clickAudioLow.current;
-      
-      if (clickSound) {
-        clickSound.currentTime = 0;
-        clickSound.play().catch(() => {});
+  useEffect(() => {
+    if (metronomeOn && audioEngine.isReady()) {
+      const interval = (60 / tempo) * 1000;
+      metronomeInterval.current = window.setInterval(() => {
+        const nextPosition = (beatPosition + 1) % 16;
+        
+        const isDownbeat = nextPosition === 0 || nextPosition === 4 || nextPosition === 8 || nextPosition === 12;
+        const clickSound = isDownbeat ? clickAudioHigh.current : clickAudioLow.current;
+        
+        if (clickSound) {
+          clickSound.currentTime = 0;
+          clickSound.play().catch(() => {});
+        }
+        
+        setBeatPosition(nextPosition);
+        
+        if (isDownbeat) {
+          setEqualizerBars(Array(16).fill(70));
+          setTimeout(() => setEqualizerBars(Array(16).fill(0)), 80);
+        }
+        
+        if ('vibrate' in navigator && isDownbeat) {
+          navigator.vibrate(5);
+        }
+      }, interval);
+    } else {
+      if (metronomeInterval.current) {
+        clearInterval(metronomeInterval.current);
       }
-      
-      setBeatPosition(nextPosition);
-      
-      // Visual EQ spike on downbeats
-      if (isDownbeat) {
-        setEqualizerBars(Array(16).fill(70));
-        setTimeout(() => setEqualizerBars(Array(16).fill(0)), 80);
-      }
-      
-      if ('vibrate' in navigator && isDownbeat) {
-        navigator.vibrate(5);
-      }
-    }, interval);
-  } else {
-    if (metronomeInterval.current) {
-      clearInterval(metronomeInterval.current);
+      setBeatPosition(0);
+      setEqualizerBars(Array(16).fill(0));
     }
-    setBeatPosition(0);
-    setEqualizerBars(Array(16).fill(0));
-  }
 
-  return () => {
-    if (metronomeInterval.current) {
-      clearInterval(metronomeInterval.current);
+    return () => {
+      if (metronomeInterval.current) {
+        clearInterval(metronomeInterval.current);
+      }
+    };
+  }, [metronomeOn, tempo, beatPosition]);
+
+  const enableAudio = async () => {
+    try {
+      // Audio already initialized in useEffect, just unlock it
+      const unlock = new Audio('/samples/kick.wav');
+      unlock.volume = 0.01;
+      await unlock.play();
+      unlock.pause();
+      
+      setShowAudioPrompt(false);
+    } catch (error) {
+      console.error('Audio enable error:', error);
     }
   };
-}, [metronomeOn, tempo, beatPosition]);
-
-const enableAudio = async () => {
-  try {
-    await audioEngine.initialize();
-    setShowAudioPrompt(false);
-  } catch (error) {
-    console.error('Audio enable error:', error);
-  }
-};
 
   const animateFrequencyPattern = (sampleType: string) => {
     const pattern = frequencyPatterns[sampleType as keyof typeof frequencyPatterns] || 
@@ -150,7 +155,6 @@ const enableAudio = async () => {
     audioEngine.playSound(pad.sample);
     animateFrequencyPattern(pad.sample);
 
-    // Record event if recording
     if (isRecording) {
       const eventTime = Date.now() - recordingStartTime.current;
       recordedEvents.current.push({ time: eventTime, padIndex });
@@ -190,7 +194,6 @@ const enableAudio = async () => {
       }, event.time);
     });
 
-    // Find max time to know when playback ends
     const maxTime = Math.max(...recordedEvents.current.map(e => e.time));
     playbackTimeout.current = window.setTimeout(() => {
       setIsPlaying(false);
@@ -265,7 +268,6 @@ const enableAudio = async () => {
             ))}
           </div>
 
-          {/* 16 beat position indicators */}
           <div className="beat-indicators-16">
             {Array(16).fill(0).map((_, i) => (
               <div 
